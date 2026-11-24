@@ -7,6 +7,7 @@
 </head>
 <body>
 <title>Lote Packing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>if('auto'==='dark'||'auto'==='light')document.documentElement.setAttribute('data-theme','auto');</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap">
@@ -84,6 +85,27 @@ tr.tot td{font-weight:800;border-top:2px solid var(--fg);border-bottom:none}
 .cday .b{width:36px;height:170px;display:flex;flex-direction:column-reverse;border-radius:6px;overflow:hidden;background:var(--track)}
 .cday .b i{display:block} .cday .d{font-size:.7rem;color:var(--mut);white-space:nowrap} .cday .n{font-size:.66rem;color:var(--mut)}
 td.cmp b{color:var(--c1)} .k .v.c1{color:var(--c1)}
+.vc{position:relative;display:flex;align-items:flex-end;gap:6px;min-width:max-content;padding:4px 4px 0 40px}
+.vc .ax{position:absolute;left:0;right:0;top:46px;height:260px;pointer-events:none}
+.vc .ax div{position:absolute;left:0;right:0;border-top:1px dashed var(--line);font-size:.66rem;color:var(--mut)} .vc .ax span{position:absolute;left:0;top:-8px;width:34px;text-align:right}
+.vg{position:relative;display:flex;flex-direction:column;align-items:center;width:92px;flex:0 0 auto}
+.vg .dl{height:34px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;font:800 .95rem var(--fd);border-radius:99px;padding:0 10px;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.vg .dl.up{background:rgba(46,158,87,.14);color:var(--c1)} .vg .dl.dn{background:rgba(217,83,79,.14);color:var(--c2)} .vg .dl.na{color:var(--mut);font-weight:500;font-size:.8rem}
+.vg .pr{position:relative;display:flex;gap:10px;height:260px;align-items:flex-end}
+.vg .col{width:34px;height:100%;display:flex;flex-direction:column-reverse;border-radius:7px;overflow:hidden;background:var(--track);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.vg .col i{display:flex;align-items:center;justify-content:center;font:800 .7rem var(--ff);font-style:normal;color:#fff;writing-mode:horizontal-tb}
+.vg .col i.dk{color:#2a1f10}
+.vg .col.pend{background:repeating-linear-gradient(135deg,var(--track) 0 6px,transparent 6px 12px);border:1px dashed var(--line);
+  align-items:center;justify-content:center;font:700 .6rem var(--ff);color:var(--mut);text-transform:uppercase;letter-spacing:.05em;writing-mode:vertical-rl;transform:rotate(180deg)}
+.vg svg{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.vg .ty{display:flex;gap:10px;margin-top:6px} .vg .ty span{width:34px;text-align:center;font-size:.52rem;letter-spacing:0;text-transform:uppercase;color:var(--mut);font-weight:700}
+.vg .nm{margin-top:8px;font-weight:800;font-size:.98rem;text-align:center;line-height:1.1} .vg .nm small{display:block;font-weight:500;font-size:.72rem;color:var(--mut)}
+.pend-ley{background:repeating-linear-gradient(135deg,var(--track) 0 3px,transparent 3px 6px)!important;border:1px dashed var(--mut)}
+.card{position:relative}
+.xbtn{position:absolute;top:14px;right:14px;border:1px solid var(--line);background:var(--chip);color:var(--fg);border-radius:99px;padding:4px 11px;font:700 .74rem var(--ff);cursor:pointer;opacity:.85}
+.xbtn:hover{opacity:1;border-color:var(--acc)}
+.cap .xbtn,.cap .filt,.cap .ptabs,.cap .tema,.cap .xall{display:none!important} .cap .scroll{overflow:visible!important}
 .cvp{display:grid;grid-template-columns:minmax(90px,130px) 62px minmax(0,1fr) 84px;align-items:center;column-gap:10px;min-width:620px}
 .cvp .hd2{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);text-align:center;padding-bottom:6px}
 .cvp .lt{grid-row:span 2;font-weight:800;font-size:1rem;text-align:right;padding-right:4px;line-height:1.15}
@@ -117,6 +139,7 @@ td.cmp b{color:var(--c1)} .k .v.c1{color:var(--c1)}
  <div class="fg"><span>Fecha</span>
   <label class="sel">Desde <select id="desde"></select></label><label class="sel">Hasta <select id="hasta_f"></select></label>
   <button class="chip" type="button" id="limpiar">Quitar filtros</button></div>
+ <div class="fg"><button class="chip xall" type="button" id="xall" style="background:var(--acc);border-color:var(--acc);color:#fff">⬇ Imagen HD de la página</button></div>
  <div class="fg" id="fl"><span>Lote</span></div>
  <div class="fg" id="fp"><span>Packing</span></div>
  <div class="fg" id="fm"><span>Medir en</span></div>
@@ -133,11 +156,9 @@ td.cmp b{color:var(--c1)} .k .v.c1{color:var(--c1)}
 </div>
 <div class="vw" id="vCal" hidden>
 <section class="kpis" id="kpis2"></section>
-<section class="card"><h2>Categoría por día</h2><p class="sub">% de racimos de cada categoría · arriba, la Categoría 1</p>
- <div class="scroll"><div class="cdays" id="cdays"></div></div><div class="ley" id="lcal"></div></section>
-<section class="card"><h2>Campo vs packing por lote</h2><p class="sub">Categoría en la evaluación de campo (% de racimos) frente a lo que salió en packing (% de cajas equivalentes) · Δ Cat 1 = packing − campo, en puntos porcentuales</p>
- <div class="scroll"><div class="cvp" id="cvp"></div><div class="ejes"><span>0%</span><span>20%</span><span>40%</span><span>60%</span><span>80%</span><span>100%</span></div></div>
- <div class="ley"><span><i style="background:var(--c1)"></i>Cat 1</span><span><i style="background:var(--c15)"></i>Cat 1.5</span><span><i style="background:var(--c2)"></i>Cat 2</span><span><i style="background:#8a7f7b"></i>Descarte (campo)</span><span><i style="background:var(--track);border:1px solid var(--line)"></i>Packing pendiente</span></div></section>
+<section class="card"><h2>Campo vs packing por lote</h2><p class="sub">Por lote: a la izquierda la categorización en campo (% de racimos), a la derecha lo que salió en packing (% de cajas equivalentes). Arriba, el salto de Cat 1.</p>
+ <div class="scroll"><div class="vc" id="vc"></div></div>
+ <div class="ley"><span><i style="background:var(--c1)"></i>Cat 1</span><span><i style="background:var(--c15)"></i>Cat 1.5</span><span><i style="background:var(--c2)"></i>Cat 2</span><span><i style="background:#8a7f7b"></i>Descarte (campo)</span><span><i class="pend-ley"></i>Packing pendiente</span><span><i style="background:none;border-top:2px dashed var(--fg);height:0;width:16px;border-radius:0"></i>Nivel de Cat 1</span></div></section>
 <section class="card"><h2>Detalle por lote</h2><p class="sub">% de racimos en la categorización de campo y muestras evaluadas</p>
  <div class="scroll"><table id="tab2"></table></div></section>
 <p class="nota">Fuente: evaluación de categorización de racimos en cosecha (Pedregal). Cada % es la suma de racimos de esa categoría entre el total evaluado, juntando los días y lotes elegidos. La Cat 1 de packing sale del diario de calidad (cajas equivalentes).</p>
@@ -206,30 +227,28 @@ function drawCal(){
   const fs = [...new Set(qs.map(r=>r.f))].sort();
   if (pag === 'cal' && fs.length) { document.getElementById('hasta').textContent = dd(fs.at(-1));
     document.getElementById('per').textContent = `Calidad de campo · Campaña 2026 - 2027 · del ${dd(fs[0])} al ${dd(fs.at(-1))} · Semana ${semana(fs.at(-1))}`; }
-  document.getElementById('cdays').innerHTML = fs.length ? fs.map(f => { const rr = qs.filter(r=>r.f===f), t = T(rr);
-    return `<div class="cday"><span class="t">${pct(sum(rr,'c1'),t).toFixed(0)}%</span><div class="b">${QC.map(([k,lab,col])=>{ const p = pct(sum(rr,k),t);
-      return p ? `<i title="${lab}: ${p.toFixed(1)}%" style="height:${p.toFixed(2)}%;background:${col}"></i>` : ''; }).join('')}</div><span class="d">${dd(f)}</span><span class="n">${sum(rr,'n')} m.</span></div>`; }).join('')
-    : '<p class="nota">No hay categorización de campo con estos filtros.</p>';
-  document.getElementById('lcal').innerHTML = QC.map(([,lab,col])=>`<span><i style="background:${col}"></i>${lab}</span>`).join('');
   const lts = [...new Set(qs.map(r=>r.lt))].sort((a,b) => { const A = qs.filter(r=>r.lt===a), B = qs.filter(r=>r.lt===b); return pct(sum(B,'c1'),T(B)) - pct(sum(A,'c1'),T(A)); });
   const fila = (lab, va, rr, pp, cls='') => { const t = T(rr), e = sum(pp,'eq');
     return `<tr class="${cls}"><td><b>${lab}</b></td><td>${va}</td><td>${sum(rr,'n')}</td>`
       + QC.map(([k]) => `<td class="g"><b>${pct(sum(rr,k),t).toFixed(1)}%</b></td>`).join('')
       + `<td><div class="mb">${QC.map(([k,lab2,col]) => { const p = pct(sum(rr,k),t); return p ? `<i title="${lab2}: ${p.toFixed(1)}%" style="width:${p.toFixed(2)}%;background:${col}"></i>` : ''; }).join('')}</div></td>`
       + `<td class="cmp">${e ? `<b>${pct(sum(pp.filter(r=>r.ca==='Cat 1'),'eq'),e).toFixed(1)}%</b>` : '<span class="pc">sin cajas</span>'}</td></tr>`; };
-  // campo vs packing, dos barras por lote
-  const seg = (p, col, lab, dk) => p > 0.4 ? `<i title="${lab}: ${p.toFixed(1)}%" class="${dk?'dk':''}" style="width:${p.toFixed(2)}%;background:${col}">${p >= 7 ? Math.round(p)+'%' : ''}</i>` : '';
-  const ltsAll = [...new Set([...qs.map(r=>r.lt), ...ps.map(r=>r.lt)])].sort((a,b) => (a==='Ensayos') - (b==='Ensayos') || a.localeCompare(b));
-  document.getElementById('cvp').innerHTML = '<div></div><div></div><div></div><div class="hd2">Δ Cat 1</div>' + ltsAll.map((l,i) => {
-    const rq = qs.filter(r=>r.lt===l), rp = ps.filter(r=>r.lt===l), t = T(rq), e = sum(rp,'eq');
-    const va = [...new Set([...rq, ...rp].map(r=>r.va).filter(v=>v && v!=='—'))].join(', ');
-    const campo = t ? QC.map(([k,lab,col]) => seg(pct(sum(rq,k),t), col, lab, k==='c15')).join('') : '';
-    const pk = e ? [['Cat 1','var(--c1)'],['Cat 1.5','var(--c15)'],['Cat 2','var(--c2)']].map(([c,col]) => seg(pct(sum(rp.filter(r=>r.ca===c),'eq'),e), col, c, c==='Cat 1.5')).join('') : '';
-    const d = (t && e) ? pct(sum(rp.filter(r=>r.ca==='Cat 1'),'eq'),e) - pct(sum(rq,'c1'),t) : null;
-    return (i ? '<div class="sp"></div>' : '') + `<div class="lt">${l}<small>${va}</small></div>`
-      + `<div class="ty">Campo</div><div class="br${t?'':' pend'}">${t ? campo : 'Sin evaluación de campo'}</div>`
-      + `<div class="dl ${d===null?'na':d>=0?'up':'dn'}">${d===null ? '—' : (d>=0?'+':'')+Math.round(d)+' pp'}</div>`
-      + `<div class="ty">Packing</div><div class="br${e?'':' pend'}">${e ? pk : 'En proceso de empaque'}</div>`; }).join('');
+  // campo vs packing: dos columnas verticales por lote y la linea del nivel de Cat 1
+  { const ltsV = [...new Set([...qs.map(r=>r.lt), ...ps.map(r=>r.lt)])].sort((a,b) => (a==='Ensayos') - (b==='Ensayos') || a.localeCompare(b));
+    const H = 260, W = 34, G = 10;
+    const segV = (p, col, lab, dk) => p > 0.4 ? `<i title="${lab}: ${p.toFixed(1)}%" class="${dk?'dk':''}" style="height:${p.toFixed(2)}%;background:${col}">${p >= 8 ? Math.round(p)+'%' : ''}</i>` : '';
+    document.getElementById('vc').innerHTML = `<div class="ax">${[100,75,50,25,0].map(v=>`<div style="top:${(100-v)/100*H}px"><span>${v}%</span></div>`).join('')}</div>`
+      + ltsV.map(l => { const rq = qs.filter(r=>r.lt===l), rp = ps.filter(r=>r.lt===l), t = T(rq), e = sum(rp,'eq');
+        const va = [...new Set([...rq, ...rp].map(r=>r.va).filter(v=>v && v!=='—' && v!=='Ensayos'))].join(', ');
+        const a = t ? pct(sum(rq,'c1'),t) : null, b = e ? pct(sum(rp.filter(r=>r.ca==='Cat 1'),'eq'),e) : null;
+        const d = (a!==null && b!==null) ? b - a : null;
+        const colC = t ? `<div class="col">${QC.map(([k,lab,col]) => segV(pct(sum(rq,k),t), col, lab, k==='c15')).join('')}</div>` : '<div class="col pend">sin evaluar</div>';
+        const colP = e ? `<div class="col">${[['Cat 1','var(--c1)'],['Cat 1.5','var(--c15)'],['Cat 2','var(--c2)']].map(([c,col]) => segV(pct(sum(rp.filter(r=>r.ca===c),'eq'),e), col, c, c==='Cat 1.5')).join('')}</div>` : '<div class="col pend">en empaque</div>';
+        const y = p => (H - p/100*H).toFixed(1);
+        const lin = d!==null ? `<svg viewBox="0 0 ${2*W+G} ${H}" width="${2*W+G}" height="${H}"><polyline points="0,${y(a)} ${W},${y(a)} ${W+G},${y(b)} ${2*W+G},${y(b)}" fill="none" stroke="${getComputedStyle(document.body).color}" stroke-width="2" stroke-dasharray="4 3" opacity=".75"/></svg>` : '';
+        return `<div class="vg"><div class="dl ${d===null?'na':d>=0?'up':'dn'}">${d===null ? '—' : (d>=0?'▲ +':'▼ ')+Math.round(d)+' pp'}</div>`
+          + `<div class="pr">${colC}${colP}${lin}</div><div class="ty"><span>Campo</span><span>Packing</span></div><div class="nm">${l.replace('Lote ','L')}<small>${va || '&nbsp;'}</small></div></div>`; }).join('');
+  }
   document.getElementById('tab2').innerHTML = `<thead><tr><th>Lote</th><th>Variedad</th><th>Muestras</th>${QC.map(([,lab])=>`<th>${lab}</th>`).join('')}<th style="text-align:left">Reparto</th><th>Cat 1 packing</th></tr></thead><tbody>`
     + lts.map(l => fila(l, [...new Set(qs.filter(r=>r.lt===l).map(r=>r.va))].join(', '), qs.filter(r=>r.lt===l), ps.filter(r=>r.lt===l))).join('')
     + (lts.length ? fila('Total', '', qs, ps, 'tot') : '') + '</tbody>';
@@ -282,6 +301,22 @@ document.getElementById('nota').textContent = 'Fuente: diario de calidad de pack
   const oscuro = () => r.getAttribute('data-theme') === 'dark' || (!r.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
   const pinta = () => b.textContent = oscuro() ? '☀ Claro' : '☾ Oscuro';
   b.onclick = () => { r.setAttribute('data-theme', oscuro() ? 'light' : 'dark'); pinta(); }; pinta(); }
+async function exportar(el, nombre){
+  if (!window.html2canvas) { alert('No se pudo cargar el exportador de imágenes (revisa la conexión a internet).'); return; }
+  document.body.classList.add('cap');
+  try {
+    const bg = getComputedStyle(document.body).backgroundColor;
+    const c = await html2canvas(el, {scale: 3, backgroundColor: bg, useCORS: true, logging: false,
+      windowWidth: Math.max(document.documentElement.clientWidth, el.scrollWidth + 80)});
+    const a = document.createElement('a'); a.download = nombre.replace(/[^\w\-áéíóúñ ]+/gi,'').trim().replace(/\s+/g,'_') + '.png';
+    a.href = c.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+  } finally { document.body.classList.remove('cap'); }
+}
+document.querySelectorAll('section.card').forEach(card => { const b = document.createElement('button'); b.type = 'button'; b.className = 'xbtn';
+  b.textContent = '⬇ HD'; b.title = 'Descargar esta tarjeta como imagen HD (PNG)';
+  b.onclick = () => exportar(card, (card.querySelector('h2')?.textContent || 'grafico') + ' ' + sD.value + '_' + sH.value); card.appendChild(b); });
+document.getElementById('xall').onclick = () => exportar(document.querySelector('.w'),
+  (pag === 'cal' ? 'Calidad campo vs packing' : 'Cajas por lote') + ' ' + sD.value + '_' + sH.value);
 if (Q.length) {
   document.getElementById('ptabs').hidden = false;
   const pon = p => { pag = p; document.getElementById('vPack').hidden = p !== 'pk'; document.getElementById('vCal').hidden = p !== 'cal';
