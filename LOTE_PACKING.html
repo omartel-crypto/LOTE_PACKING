@@ -85,7 +85,16 @@ tr.tot td{font-weight:800;border-top:2px solid var(--fg);border-bottom:none}
 .cday .t{font-size:.78rem;font-weight:800;color:var(--c1);font-variant-numeric:tabular-nums}
 .cday .b{width:36px;height:170px;display:flex;flex-direction:column-reverse;border-radius:6px;overflow:hidden;background:var(--track)}
 .cday .b i{display:block} .cday .d{font-size:.7rem;color:var(--mut);white-space:nowrap} .cday .n{font-size:.66rem;color:var(--mut)}
-td.cmp b{color:var(--c1)} .k .v.c1{color:var(--c1)}
+td.cmp b{color:var(--c1)}
+#tab2 .h1{background:rgba(46,158,87,.07)} #tab2 td.hp{background:rgba(46,158,87,.14)} #tab2 th.hp{background:rgba(46,158,87,.14)}
+#tab2 td.hc b{color:var(--fg);font-size:1rem} #tab2 td.hp b{color:var(--c1);font-size:1.05rem}
+#tab2 th.hc{border-left:2px solid rgba(46,158,87,.45)} #tab2 td.hc{border-left:2px solid rgba(46,158,87,.45)}
+#tab2 th.hdl, #tab2 td.hdl{border-right:2px solid rgba(46,158,87,.45);text-align:center}
+#tab2 tr.grp th{border-bottom:none;padding-bottom:2px;font-size:.66rem;text-align:center}
+#tab2 tr.grp th.h1g{background:rgba(46,158,87,.14);color:var(--c1);border-radius:8px 8px 0 0}
+#tab2 td.g{color:var(--mut)}
+.dpill{display:inline-block;padding:2px 9px;border-radius:99px;font-weight:800;font-size:.85rem}
+.dpill.up{background:rgba(46,158,87,.16);color:var(--c1)} .dpill.dn{background:rgba(217,83,79,.16);color:var(--c2)} .k .v.c1{color:var(--c1)}
 .vc{position:relative;display:flex;align-items:flex-end;gap:6px;min-width:max-content;padding:4px 4px 0 40px}
 .vc .ax{position:absolute;left:0;right:0;top:46px;height:260px;pointer-events:none}
 .vc .ax div{position:absolute;left:0;right:0;border-top:1px dashed var(--line);font-size:.66rem;color:var(--mut)} .vc .ax span{position:absolute;left:0;top:-8px;width:34px;text-align:right}
@@ -235,10 +244,13 @@ function drawCal(){
     document.getElementById('per').textContent = `Calidad de campo · Campaña 2026 - 2027 · del ${dd(fs[0])} al ${dd(fs.at(-1))} · Semana ${semana(fs.at(-1))}`; }
   const lts = [...new Set(qs.map(r=>r.lt))].sort((a,b) => { const A = qs.filter(r=>r.lt===a), B = qs.filter(r=>r.lt===b); return pct(sum(B,'c1'),T(B)) - pct(sum(A,'c1'),T(A)); });
   const fila = (lab, va, rr, pp, cls='') => { const t = T(rr), e = sum(pp,'eq');
+    const a = pct(sum(rr,'c1'),t), b = e ? pct(sum(pp.filter(r=>r.ca==='Cat 1'),'eq'),e) : null, d = b===null ? null : b - a;
     return `<tr class="${cls}"><td><b>${lab}</b></td><td>${va}</td><td>${sum(rr,'n')}</td>`
-      + QC.map(([k]) => `<td class="g"><b>${pct(sum(rr,k),t).toFixed(1)}%</b></td>`).join('')
-      + `<td><div class="mb">${QC.map(([k,lab2,col]) => { const p = pct(sum(rr,k),t); return p ? `<i title="${lab2}: ${p.toFixed(1)}%" style="width:${p.toFixed(2)}%;background:${col}"></i>` : ''; }).join('')}</div></td>`
-      + `<td class="cmp">${e ? `<b>${pct(sum(pp.filter(r=>r.ca==='Cat 1'),'eq'),e).toFixed(1)}%</b>` : '<span class="pc">sin cajas</span>'}</td></tr>`; };
+      + `<td class="h1 hc"><b>${a.toFixed(1)}%</b></td>`
+      + `<td class="h1 hp">${b===null ? '<span class="pc">sin cajas</span>' : `<b>${b.toFixed(1)}%</b>`}</td>`
+      + `<td class="h1 hdl">${d===null ? '—' : `<span class="dpill ${d>=0?'up':'dn'}">${d>=0?'+':''}${Math.round(d)} pp</span>`}</td>`
+      + QC.slice(1).map(([k]) => `<td class="g">${pct(sum(rr,k),t).toFixed(1)}%</td>`).join('')
+      + `<td><div class="mb">${QC.map(([k,lab2,col]) => { const p = pct(sum(rr,k),t); return p ? `<i title="${lab2}: ${p.toFixed(1)}%" style="width:${p.toFixed(2)}%;background:${col}"></i>` : ''; }).join('')}</div></td></tr>`; };
   // campo vs packing: dos barras echadas por lote y el salto de Cat 1 a la derecha
   const seg = (p, col, lab, dk) => p > 0.4 ? `<i title="${lab}: ${p.toFixed(1)}%" class="${dk?'dk':''}" style="width:${p.toFixed(2)}%;background:${col}">${p >= 6 ? Math.round(p)+'%' : ''}</i>` : '';
   const ltsAll = [...new Set([...qs.map(r=>r.lt), ...ps.map(r=>r.lt)])].sort((a,b) => (a==='Ensayos') - (b==='Ensayos') || a.localeCompare(b));
@@ -253,7 +265,7 @@ function drawCal(){
       + `<div class="dl ${d===null?'na':d>=0?'up':'dn'}">${d===null ? '—' : (d>=0?'+':'')+Math.round(d)+' pp'}</div>`
       + `<div class="ty">Packing</div><div class="br${e?'':' pend'}">${e ? pk : 'En proceso de empaque'}</div>`; }).join('')
     + '<div></div><div></div><div class="ej"><span>0%</span><span>20%</span><span>40%</span><span>60%</span><span>80%</span><span>100%</span></div><div></div>';
-  document.getElementById('tab2').innerHTML = `<thead><tr><th>Lote</th><th>Variedad</th><th>Muestras</th>${QC.map(([,lab])=>`<th>${lab}</th>`).join('')}<th style="text-align:left">Reparto</th><th>Cat 1 packing</th></tr></thead><tbody>`
+  document.getElementById('tab2').innerHTML = `<thead><tr class="grp"><th colspan="3"></th><th colspan="3" class="h1g">Categoría 1 · campo vs packing</th><th colspan="4">Resto en campo</th></tr><tr><th>Lote</th><th>Variedad</th><th>Muestras</th><th class="h1 hc">Cat 1 campo</th><th class="h1 hp">Cat 1 packing</th><th class="h1 hdl">Δ</th>${QC.slice(1).map(([,lab])=>`<th>${lab}</th>`).join('')}<th style="text-align:left">Reparto campo</th></tr></thead><tbody>`
     + lts.map(l => fila(l, [...new Set(qs.filter(r=>r.lt===l).map(r=>r.va))].join(', '), qs.filter(r=>r.lt===l), ps.filter(r=>r.lt===l))).join('')
     + (lts.length ? fila('Total', '', qs, ps, 'tot') : '') + '</tbody>';
 }
